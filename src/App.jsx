@@ -4,7 +4,9 @@ import NoProjectSelected from "./components/NoProjectSelected.jsx";
 import Sidebar from "./components/ProjectSidebar.jsx";
 import SelectedProject from "./components/SelectedProject.jsx";
 
-// Load projects from local storage
+//Prevents data loss at refresh
+
+//1. Load projects from local storage
 const loadProjectsFromLocalStorage = () => {
   const savedProjects = JSON.parse(localStorage.getItem("projects")) || [];
   return savedProjects;
@@ -21,7 +23,7 @@ function App() {
 
   const [selectedProject, setSelectedProject] = useState(null);
 
-  // Save projects to local storage whenever the state changes
+  //2. Save projects to local storage whenever the state changes
   useEffect(() => {
     localStorage.setItem("projects", JSON.stringify(state.projects));
   }, [state.projects]);
