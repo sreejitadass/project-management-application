@@ -6,13 +6,8 @@ import SelectedProject from "./components/SelectedProject.jsx";
 
 // Load projects from local storage
 const loadProjectsFromLocalStorage = () => {
-  try {
-    const savedProjects = JSON.parse(localStorage.getItem("projects")) || [];
-    return savedProjects;
-  } catch (error) {
-    console.error("Error loading projects from localStorage", error);
-    return [];
-  }
+  const savedProjects = JSON.parse(localStorage.getItem("projects")) || [];
+  return savedProjects;
 };
 
 function App() {
