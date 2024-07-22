@@ -1,23 +1,41 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import NewProject from "./components/NewProject.jsx";
 import NoProjectSelected from "./components/NoProjectSelected.jsx";
 import Sidebar from "./components/ProjectSidebar.jsx";
 import SelectedProject from "./components/SelectedProject.jsx";
 
+// Load projects from local storage
+const loadProjectsFromLocalStorage = () => {
+  try {
+    const savedProjects = JSON.parse(localStorage.getItem("projects")) || [];
+    return savedProjects;
+  } catch (error) {
+    console.error("Error loading projects from localStorage", error);
+    return [];
+  }
+};
+
 function App() {
+  const initialProjects = loadProjectsFromLocalStorage();
+
   const [state, setState] = useState({
     createNew: false,
     addNew: false,
-    projects: []
+    projects: initialProjects,
   });
 
   const [selectedProject, setSelectedProject] = useState(null);
+
+  // Save projects to local storage whenever the state changes
+  useEffect(() => {
+    localStorage.setItem("projects", JSON.stringify(state.projects));
+  }, [state.projects]);
 
   function handleDisplayNew() {
     setState((prevState) => ({
       ...prevState,
       createNew: true,
-      addNew: true
+      addNew: true,
     }));
   }
 
@@ -25,7 +43,7 @@ function App() {
     setState((prevState) => ({
       ...prevState,
       createNew: false,
-      addNew: false
+      addNew: false,
     }));
   }
 
@@ -34,7 +52,7 @@ function App() {
       ...prevState,
       createNew: false,
       addNew: false,
-      projects: [...prevState.projects, newProject]
+      projects: [...prevState.projects, newProject],
     }));
     setSelectedProject(newProject); // Select the newly created project
   }
@@ -43,7 +61,7 @@ function App() {
     const projectToDelete = state.projects[index];
     setState((prevState) => ({
       ...prevState,
-      projects: prevState.projects.filter((_, i) => i !== index)
+      projects: prevState.projects.filter((_, i) => i !== index),
     }));
     if (selectedProject && selectedProject === projectToDelete) {
       setSelectedProject(null);
@@ -54,7 +72,7 @@ function App() {
     setState((prevState) => ({
       ...prevState,
       createNew: false,
-      addNew: false
+      addNew: false,
     }));
     setSelectedProject(project);
   }
@@ -64,7 +82,7 @@ function App() {
 
     const updatedProject = {
       ...selectedProject,
-      tasks: [...(selectedProject.tasks || []), task]
+      tasks: [...(selectedProject.tasks || []), task],
     };
     const updatedProjects = state.projects.map((project) =>
       project === selectedProject ? updatedProject : project
@@ -72,7 +90,7 @@ function App() {
 
     setState((prevState) => ({
       ...prevState,
-      projects: updatedProjects
+      projects: updatedProjects,
     }));
     setSelectedProject(updatedProject);
   }
@@ -82,31 +100,37 @@ function App() {
       ...selectedProject,
       tasks: selectedProject.tasks.filter((_, i) => i !== index),
     };
-  
+
     const updatedProjects = state.projects.map((project) =>
       project === selectedProject ? updatedProject : project
     );
-  
+
     setState((prevState) => ({
       ...prevState,
       projects: updatedProjects,
     }));
     setSelectedProject(updatedProject);
   }
-  
 
   return (
     <main className="h-screen my-8 flex gap-16 bg-amber-50">
-      <Sidebar 
-        projects={state.projects} 
-        onCreateNewProject={handleDisplayNew} 
+      <Sidebar
+        projects={state.projects}
+        onCreateNewProject={handleDisplayNew}
         onSelectProject={handleSelectProject}
-        onDeleteProject={handleDeleteProject} 
+        onDeleteProject={handleDeleteProject}
       />
       {state.createNew || state.addNew ? (
-        <NewProject onCancelNewProject={handleCancelNew} onSaveNewProject={handleAddProject} />
+        <NewProject
+          onCancelNewProject={handleCancelNew}
+          onSaveNewProject={handleAddProject}
+        />
       ) : selectedProject ? (
-        <SelectedProject project={selectedProject} onAddTask={handleAddTask} onDeleteTask={handleDeleteTask}/>
+        <SelectedProject
+          project={selectedProject}
+          onAddTask={handleAddTask}
+          onDeleteTask={handleDeleteTask}
+        />
       ) : (
         <NoProjectSelected onCreateNewProject={handleDisplayNew} />
       )}
